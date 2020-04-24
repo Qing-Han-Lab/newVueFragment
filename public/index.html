@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+  <script>
+    document.addEventListener('plusready',function(){
+     // 添加app点击返回逻辑
+     function addBackEvent(){
+       var clickState  = false;
+       var nowWv = window.plus.webview.currentWebview();
+       if(window.plus.webview.all().length!==1){ // 如果当前页面不是一个页面
+          nowWv.close('pop-in');
+       }else{
+         if(clickState){
+           window.plus.runtime.quit(); // 退出应用
+         }else{
+           clickState = true;
+           window.plus.nativeUI.toast('一秒内连续点击两次退出应用!');
+           setTimeout(() => {
+             clickState = false;
+           }, 1000);
+         }
+       }
+     }
+     window.plus.key.addEventListener('backbutton',addBackEvent,false);
+     // 添加网络状态变化的逻辑
+     document.addEventListener('netchange',function(){
+        let nowType = window.plus.networkinfo.getCurrentType();
+        if(nowType===6){
+          window.plus.nativeUI.toast('您正在使用4G网络');
+        }else if(nowType === 3){
+          window.plus.nativeUI.toast('您正在使用wifi')
+        }
+     },false)
+    },false)
+    // 添加运行环境监听
+     function listenRunTime(){
+       document.addEventListener('pause',function(){
+          window.plus.nativeUI.toast('应用已运行到后台')
+       },false);
+       document.addEventListener('resume',function(){
+        window.plus.nativeUI.toast('欢迎回来')
+       },false)
+     }
+  </script>
+</html>
